@@ -10,6 +10,8 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.auth
+import kotlinx.coroutines.runBlocking
+import java.lang.Thread.sleep
 
 class AuthenticateViewModel: ViewModel() {
 
@@ -22,7 +24,7 @@ class AuthenticateViewModel: ViewModel() {
     val auth: FirebaseAuth = Firebase.auth
 
     fun login(navController: NavHostController) {
-        val auth: FirebaseAuth = com.google.firebase.Firebase.auth
+        val auth: FirebaseAuth = Firebase.auth
 
         if (email.value.isEmpty() || password.value.isEmpty()) {
             showErrorMessage.value = "Please enter your email and password."
@@ -61,7 +63,7 @@ class AuthenticateViewModel: ViewModel() {
             }
     }
 
-    fun createAccount(){
+    fun createAccount(navController: NavHostController){
 
         if (email.value.isEmpty() || password.value.isEmpty()) {
             showErrorMessage.value = "Please enter your email and password."
@@ -78,6 +80,10 @@ class AuthenticateViewModel: ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     showSuccessDialog.value = true
+                    runBlocking {
+                        sleep(3000)
+                        navController.navigate("login")
+                    }
 
                 } else {
                     showErrorMessage.value="Sign In failed try again!"
