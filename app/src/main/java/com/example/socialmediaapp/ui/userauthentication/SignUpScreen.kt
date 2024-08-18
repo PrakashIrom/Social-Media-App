@@ -18,8 +18,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,11 +33,15 @@ import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.ui.theme.SocialMediaAppTheme
 import com.example.socialmediaapp.viewmodel.AuthenticateViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.socialmediaapp.viewmodel.ReadWriteNewUserViewModel
 
 @Composable
-fun SignUpScreen(navController: NavHostController, viewModel: AuthenticateViewModel=viewModel(factory = AuthenticateViewModel.Factory)) {
+fun SignUpScreen(navController: NavHostController,
+                 viewModel: AuthenticateViewModel=viewModel(factory = AuthenticateViewModel.Factory),
+                 newUserViewModel: ReadWriteNewUserViewModel=viewModel(factory = ReadWriteNewUserViewModel.Factory)
+                 ) {
 
-    val user = viewModel.user
+    val user = viewModel.user.collectAsState().value
 
     Box(
         modifier = Modifier
@@ -157,6 +160,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthenticateViewMo
             }
 
             if (viewModel.showSuccessDialog.value) {
+                newUserViewModel.writeNewUser(user.userId!!, user.userName.value, user.email.value)
                 AlertDialog(
                     onDismissRequest = { viewModel.showSuccessDialog.value = false },
                     title = { Text("Success") },

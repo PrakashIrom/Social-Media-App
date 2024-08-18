@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -15,6 +16,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class AuthenticateViewModel(private val firebaseInst:FireBaseContainerImpl): ViewModel() {
 
@@ -23,18 +26,22 @@ class AuthenticateViewModel(private val firebaseInst:FireBaseContainerImpl): Vie
     val showErrorMessage = mutableStateOf("")
     val confirmPassword: MutableState<String> = mutableStateOf("")
     private val auth: FirebaseAuth = firebaseInst.auth
-    val user = User()
+    private val _user = MutableStateFlow(User())
+    val user: StateFlow<User> = _user
+    private val userDetails = _user.value
 
     fun login(navController: NavHostController) {
 
-        if (user.email.value.isEmpty() || user.password.value.isEmpty()) {
+        if (_user.value.email.value.isEmpty() || userDetails.password.value.isEmpty()) {
             showErrorMessage.value = "Please enter your email and password."
             showErrorDialog.value = true
             return
         }
-        auth.signInWithEmailAndPassword(user.email.value, user.password.value)
+        auth.signInWithEmailAndPassword(userDetails.email.value, userDetails.password.value)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    userDetails.userId = auth.currentUser?.uid
+                    showErrorDialog.value = false
                     navController.navigate("home")
 
                 } else {
@@ -67,22 +74,22 @@ class AuthenticateViewModel(private val firebaseInst:FireBaseContainerImpl): Vie
 
     fun createAccount(navController: NavHostController){
 
-        if (user.email.value.isEmpty() || user.password.value.isEmpty()) {
+        if (userDetails.email.value.isEmpty() || userDetails.password.value.isEmpty()) {
             showErrorMessage.value = "Please enter your email and password."
             showErrorDialog.value = true
             return
         }
-        else if(user.password.value!= confirmPassword.value){
+        else if(userDetails.password.value!= confirmPassword.value){
             showErrorMessage.value = "Password does not match!"
             showErrorDialog.value = true
             return
         }
 
-        auth.createUserWithEmailAndPassword(user.email.value, user.password.value)
+        auth.createUserWithEmailAndPassword(userDetails.email.value, userDetails.password.value)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    userDetails.userId = auth.currentUser?.uid
                     showSuccessDialog.value = true
-                    user.userId = auth.currentUser?.uid
                     // call a function here to save the user infos like name, email, userId to database
                     navController.navigate("login")
                 } else {

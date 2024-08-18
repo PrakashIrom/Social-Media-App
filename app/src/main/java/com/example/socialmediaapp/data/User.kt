@@ -9,3 +9,8 @@ data class User(
     val password: MutableState<String> = mutableStateOf(""),
     var userId: String? = ""
 )
+
+data class NewUser(
+    val userName: String = "",
+    val email: String = "",
+)

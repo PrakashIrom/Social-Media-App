@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.ui.userauthentication
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,11 +39,15 @@ import com.example.socialmediaapp.ui.theme.SocialMediaAppTheme
 import com.example.socialmediaapp.viewmodel.AuthenticateViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.socialmediaapp.ui.mainscreen.Home
+import com.example.socialmediaapp.viewmodel.ReadWriteNewUserViewModel
 
 @Composable
-fun LoginScreen(navController: NavHostController, viewModel: AuthenticateViewModel=viewModel(factory = AuthenticateViewModel.Factory)) {
+fun LoginScreen(navController: NavHostController,
+                viewModel: AuthenticateViewModel=viewModel(factory = AuthenticateViewModel.Factory),
+                newUserViewModel: ReadWriteNewUserViewModel = viewModel(factory = ReadWriteNewUserViewModel.Factory)
+) {
 
-    val user = viewModel.user
+    val user = viewModel.user.collectAsState().value
 
     Box(
         modifier = Modifier
@@ -96,7 +102,13 @@ fun LoginScreen(navController: NavHostController, viewModel: AuthenticateViewMod
             Spacer(modifier = Modifier.height(40.dp))
 
             Button(
-                onClick = {viewModel.login(navController)},
+                onClick = {
+                    viewModel.login(navController)
+                    if(viewModel.showErrorDialog.value==false) {
+                        Log.d("USERID",user.userId!!)
+                        newUserViewModel.readNewUser(user.userId!!)
+                    }
+                          },
                 modifier = Modifier
                     .width(150.dp)
                     .height(50.dp),
