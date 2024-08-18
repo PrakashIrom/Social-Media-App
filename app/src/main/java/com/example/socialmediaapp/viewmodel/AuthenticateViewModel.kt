@@ -1,40 +1,42 @@
 package com.example.socialmediaapp.viewmodel
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
-import com.google.firebase.Firebase
+import com.example.socialmediaapp.FireBaseApplication
+import com.example.socialmediaapp.data.FireBaseContainerImpl
+import com.example.socialmediaapp.data.User
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.auth
-import kotlinx.coroutines.runBlocking
-import java.lang.Thread.sleep
 
-class AuthenticateViewModel: ViewModel() {
+class AuthenticateViewModel(private val firebaseInst:FireBaseContainerImpl): ViewModel() {
 
-    val email = mutableStateOf("")
-    val password = mutableStateOf("")
-    val confirmPassword = mutableStateOf("")
     val showErrorDialog = mutableStateOf(false)
     val showSuccessDialog = mutableStateOf(false)
     val showErrorMessage = mutableStateOf("")
-    val auth: FirebaseAuth = Firebase.auth
+    val confirmPassword: MutableState<String> = mutableStateOf("")
+    private val auth: FirebaseAuth = firebaseInst.auth
+    val user = User()
 
     fun login(navController: NavHostController) {
-        val auth: FirebaseAuth = Firebase.auth
 
-        if (email.value.isEmpty() || password.value.isEmpty()) {
+        if (user.email.value.isEmpty() || user.password.value.isEmpty()) {
             showErrorMessage.value = "Please enter your email and password."
             showErrorDialog.value = true
             return
         }
-        auth.signInWithEmailAndPassword(email.value, password.value)
+        auth.signInWithEmailAndPassword(user.email.value, user.password.value)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     navController.navigate("home")
+
                 } else {
                     showErrorMessage.value = "Login failed. Please try again."
                     showErrorDialog.value = true
@@ -65,26 +67,24 @@ class AuthenticateViewModel: ViewModel() {
 
     fun createAccount(navController: NavHostController){
 
-        if (email.value.isEmpty() || password.value.isEmpty()) {
+        if (user.email.value.isEmpty() || user.password.value.isEmpty()) {
             showErrorMessage.value = "Please enter your email and password."
             showErrorDialog.value = true
             return
         }
-        else if(password.value!=confirmPassword.value){
+        else if(user.password.value!= confirmPassword.value){
             showErrorMessage.value = "Password does not match!"
             showErrorDialog.value = true
             return
         }
 
-        auth.createUserWithEmailAndPassword(email.value, password.value)
+        auth.createUserWithEmailAndPassword(user.email.value, user.password.value)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     showSuccessDialog.value = true
-                    runBlocking {
-                        sleep(3000)
-                        navController.navigate("login")
-                    }
-
+                    user.userId = auth.currentUser?.uid
+                    // call a function here to save the user infos like name, email, userId to database
+                    navController.navigate("login")
                 } else {
                     showErrorMessage.value="Sign In failed try again!"
                     showErrorDialog.value = true
@@ -98,6 +98,15 @@ class AuthenticateViewModel: ViewModel() {
                     showErrorDialog.value = true
                 }
             }
+    }
+
+    companion object{
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                    val application =(this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as FireBaseApplication)
+                AuthenticateViewModel(application.firebaseAuth)
+            }
+        }
     }
 
 }

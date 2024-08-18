@@ -36,7 +36,9 @@ import com.example.socialmediaapp.viewmodel.AuthenticateViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun SignUpScreen(navController: NavHostController, viewModel: AuthenticateViewModel=viewModel()) {
+fun SignUpScreen(navController: NavHostController, viewModel: AuthenticateViewModel=viewModel(factory = AuthenticateViewModel.Factory)) {
+
+    val user = viewModel.user
 
     Box(
         modifier = Modifier
@@ -58,10 +60,25 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthenticateViewMo
             Spacer(modifier = Modifier.height(32.dp))
 
             TextField(
-                value = viewModel.email.value,
-                onValueChange = {viewModel.email.value=it},
+                value = user.userName.value,
+                onValueChange = {user.userName.value=it},
+                label = { Text(text = "Create a user name", color = Color.DarkGray) },
+                shape = RoundedCornerShape(20.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textStyle = TextStyle(color = Color.Black)
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            TextField(
+                value = user.email.value,
+                onValueChange = {user.email.value=it},
                 label = { Text(text = "Email", color = Color.DarkGray) },
-                visualTransformation = PasswordVisualTransformation(),
                 shape = RoundedCornerShape(20.dp),
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
@@ -75,8 +92,8 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthenticateViewMo
             Spacer(modifier = Modifier.height(16.dp))
 
             TextField(
-                value = viewModel.password.value,
-                onValueChange = {viewModel.password.value=it},
+                value = user.password.value,
+                onValueChange = {user.password.value=it},
                 label = { Text(text = "Password", color = Color.DarkGray) },
                 visualTransformation = PasswordVisualTransformation(),
                 shape = RoundedCornerShape(20.dp),

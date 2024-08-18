@@ -39,7 +39,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.socialmediaapp.ui.mainscreen.Home
 
 @Composable
-fun LoginScreen(navController: NavHostController, viewModel: AuthenticateViewModel=viewModel()) {
+fun LoginScreen(navController: NavHostController, viewModel: AuthenticateViewModel=viewModel(factory = AuthenticateViewModel.Factory)) {
+
+    val user = viewModel.user
 
     Box(
         modifier = Modifier
@@ -61,8 +63,8 @@ fun LoginScreen(navController: NavHostController, viewModel: AuthenticateViewMod
             Spacer(modifier = Modifier.height(32.dp))
 
             TextField(
-                value = viewModel.email.value,
-                onValueChange = {viewModel.email.value=it},
+                value = user.email.value,
+                onValueChange = {user.email.value=it},
                 label = { Text(text = "Email", color = Color.DarkGray) },
                 shape = RoundedCornerShape(20.dp),
                 colors = TextFieldDefaults.colors(
@@ -77,8 +79,8 @@ fun LoginScreen(navController: NavHostController, viewModel: AuthenticateViewMod
             Spacer(modifier = Modifier.height(16.dp))
 
             TextField(
-                value = viewModel.password.value,
-                onValueChange = {viewModel.password.value=it},
+                value = user.password.value,
+                onValueChange = {user.password.value=it},
                 label = { Text(text = "Password", color = Color.DarkGray) },
                 visualTransformation = PasswordVisualTransformation(),
                 shape = RoundedCornerShape(20.dp),
