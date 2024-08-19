@@ -173,7 +173,7 @@ fun NavGraph(navController: NavHostController){
             ){
                 backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")
-            Home(userId = userId)
+            Home(userId = userId!!)
         }
     }
 }

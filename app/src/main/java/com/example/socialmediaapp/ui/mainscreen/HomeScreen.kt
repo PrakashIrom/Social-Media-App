@@ -1,26 +1,40 @@
 package com.example.socialmediaapp.ui.mainscreen
 
-import android.util.Log
+
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.socialmediaapp.viewmodel.AuthenticateViewModel
+import com.example.socialmediaapp.data.Post
+import com.example.socialmediaapp.viewmodel.PostViewModel
 import com.example.socialmediaapp.viewmodel.ReadWriteNewUserViewModel
 
 @Composable
-fun Home(newUserViewModel: ReadWriteNewUserViewModel = viewModel(factory = ReadWriteNewUserViewModel.Factory),
-         viewModel: AuthenticateViewModel= viewModel(factory = AuthenticateViewModel.Factory), userId:String?
-         ){
+fun Home( userId:String, viewModel: PostViewModel = viewModel(factory = PostViewModel.Factory)){
 
+    /*
     LaunchedEffect(userId) {
-        userId?.let {
-            // Log.d("PuiId", it)
+        userId.let {
             newUserViewModel.readNewUser(it)
         }
+    }*/
+    val post = Post(userId,"Pk", "Grind", "Hello I am grinding", 0)
+
+    LaunchedEffect(userId) {
+        viewModel.writeNewPost(userId, post)
+        viewModel.readNewPost(userId)
     }
-        Text(text=newUserViewModel.userName.value)
+
+    val posts = viewModel.posts.collectAsState()
+
+    LazyColumn {
+        items(posts.value) { post ->
+            Text(text = post.title)
+        }
+    }
+
 }
