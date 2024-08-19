@@ -41,8 +41,10 @@ class AuthenticateViewModel(private val firebaseInst:FireBaseContainerImpl): Vie
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     userDetails.userId = auth.currentUser?.uid
-                    showErrorDialog.value = false
-                    navController.navigate("home")
+                    if (userDetails.userId != null) {
+                        showErrorDialog.value = false
+                        navController.navigate("home/${userDetails.userId}")
+                    }
 
                 } else {
                     showErrorMessage.value = "Login failed. Please try again."
@@ -91,7 +93,7 @@ class AuthenticateViewModel(private val firebaseInst:FireBaseContainerImpl): Vie
                     userDetails.userId = auth.currentUser?.uid
                     showSuccessDialog.value = true
                     // call a function here to save the user infos like name, email, userId to database
-                    navController.navigate("login")
+                    navController.navigateUp()
                 } else {
                     showErrorMessage.value="Sign In failed try again!"
                     showErrorDialog.value = true

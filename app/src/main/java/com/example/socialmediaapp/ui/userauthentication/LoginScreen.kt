@@ -19,6 +19,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -38,6 +39,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.ui.theme.SocialMediaAppTheme
 import com.example.socialmediaapp.viewmodel.AuthenticateViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.example.socialmediaapp.ui.mainscreen.Home
 import com.example.socialmediaapp.viewmodel.ReadWriteNewUserViewModel
 
@@ -48,6 +51,13 @@ fun LoginScreen(navController: NavHostController,
 ) {
 
     val user = viewModel.user.collectAsState().value
+    /*
+    LaunchedEffect(user.userId) {
+        user.userId?.let {
+         // Log.d("PuiId", it)
+            newUserViewModel.readNewUser(it)
+        }
+    }*/
 
     Box(
         modifier = Modifier
@@ -104,10 +114,6 @@ fun LoginScreen(navController: NavHostController,
             Button(
                 onClick = {
                     viewModel.login(navController)
-                    if(viewModel.showErrorDialog.value==false) {
-                        Log.d("USERID",user.userId!!)
-                        newUserViewModel.readNewUser(user.userId!!)
-                    }
                           },
                 modifier = Modifier
                     .width(150.dp)
@@ -162,8 +168,12 @@ fun NavGraph(navController: NavHostController){
         composable("register"){
             SignUpScreen(navController)
        }
-        composable("home"){
-            Home()
+        composable("home/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+            ){
+                backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")
+            Home(userId = userId)
         }
     }
 }

@@ -7,7 +7,7 @@ data class User(
     val userName: MutableState<String> = mutableStateOf(""),
     val email: MutableState<String> = mutableStateOf(""),
     val password: MutableState<String> = mutableStateOf(""),
-    var userId: String? = ""
+    var userId: String? = null
 )
 
 data class NewUser(

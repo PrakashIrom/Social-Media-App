@@ -15,16 +15,28 @@ class ReadWriteNewUserViewModel(dbImp: FirebaseDBImp): ViewModel() {
     private val database = dbImp.db
     val userName = mutableStateOf("")
     fun writeNewUser(userId: String, name: String, email: String) {
-        Log.d("userId", userId)
+        Log.d("ReadWriteNewUserViewModel", "Writing new user: userId=$userId, name=$name, email=$email")
         val user = NewUser( name, email)
-       database.child("users").child(userId).setValue(user)
+        database.child("users").child(userId).setValue(user)
+            .addOnSuccessListener {
+                Log.d("ReadWriteNewUserViewModel", "User data saved successfully")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("ReadWriteNewUserViewModel", "Failed to save user data", exception)
+            }
     }
 
     fun readNewUser(userId: String){
+        Log.d("Pui Id", userId)
         database.child("users").child(userId).get().addOnSuccessListener { snapshot ->
             if (snapshot.exists()) {
                 val name = snapshot.child("userName").getValue(String::class.java)
-                userName.value = name!!
+                Log.d("ReadWriteNewUserViewModel", "Retrieved user name: $name")
+                if (name != null) {
+                    userName.value = name
+                } else {
+                    Log.e("ReadWriteNewUserViewModel", "User name is null")
+                }
             } else {
                 Log.e("ReadWriteNewUserViewModel", "User with ID $userId does not exist")
             }
