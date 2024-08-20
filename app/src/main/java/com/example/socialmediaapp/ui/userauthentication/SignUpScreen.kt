@@ -53,6 +53,7 @@ fun SignUpScreen(navController: NavHostController,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(16.dp)
         ) {
+
             Text(
                 text = "Create Account",
                 fontSize = 32.sp,
@@ -76,7 +77,7 @@ fun SignUpScreen(navController: NavHostController,
                 textStyle = TextStyle(color = Color.Black)
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             TextField(
                 value = user.email.value,

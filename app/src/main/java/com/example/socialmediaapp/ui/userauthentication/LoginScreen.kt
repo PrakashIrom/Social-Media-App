@@ -46,18 +46,10 @@ import com.example.socialmediaapp.viewmodel.ReadWriteNewUserViewModel
 
 @Composable
 fun LoginScreen(navController: NavHostController,
-                viewModel: AuthenticateViewModel=viewModel(factory = AuthenticateViewModel.Factory),
-                newUserViewModel: ReadWriteNewUserViewModel = viewModel(factory = ReadWriteNewUserViewModel.Factory)
-) {
+                viewModel: AuthenticateViewModel=viewModel(factory = AuthenticateViewModel.Factory))
+ {
 
     val user = viewModel.user.collectAsState().value
-    /*
-    LaunchedEffect(user.userId) {
-        user.userId?.let {
-         // Log.d("PuiId", it)
-            newUserViewModel.readNewUser(it)
-        }
-    }*/
 
     Box(
         modifier = Modifier
