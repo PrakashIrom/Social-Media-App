@@ -3,16 +3,11 @@ package com.example.socialmediaapp.viewmodel
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.socialmediaapp.FireBaseApplication
-import com.example.socialmediaapp.data.FirebaseDBImp
 import com.example.socialmediaapp.data.NewUser
+import com.google.firebase.database.DatabaseReference
 
-class ReadWriteNewUserViewModel(dbImp: FirebaseDBImp): ViewModel() {
+class ReadWriteNewUserViewModel(private val database : DatabaseReference): ViewModel() {
 
-    private val database = dbImp.db
     val userName = mutableStateOf("")
     fun writeNewUser(userId: String, name: String, email: String) {
         Log.d("ReadWriteNewUserViewModel", "Writing new user: userId=$userId, name=$name, email=$email")
@@ -44,14 +39,4 @@ class ReadWriteNewUserViewModel(dbImp: FirebaseDBImp): ViewModel() {
             Log.e("ReadWriteNewUserViewModel", "Error reading data", exception)
         }
     }
-
-    companion object{
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application =(this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as FireBaseApplication)
-                ReadWriteNewUserViewModel(application.firebaseDB)
-            }
-        }
-    }
-
 }

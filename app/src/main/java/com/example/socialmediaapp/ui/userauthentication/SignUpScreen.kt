@@ -32,14 +32,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.ui.theme.SocialMediaAppTheme
 import com.example.socialmediaapp.viewmodel.AuthenticateViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.socialmediaapp.viewmodel.ReadWriteNewUserViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SignUpScreen(navController: NavHostController,
-                 viewModel: AuthenticateViewModel=viewModel(factory = AuthenticateViewModel.Factory),
-                 newUserViewModel: ReadWriteNewUserViewModel=viewModel(factory = ReadWriteNewUserViewModel.Factory)
-                 ) {
+                 viewModel: AuthenticateViewModel= koinViewModel(),
+                 newUserViewModel: ReadWriteNewUserViewModel= koinViewModel()) {
 
     val user = viewModel.user.collectAsState().value
 

@@ -1,6 +1,5 @@
 package com.example.socialmediaapp.ui.userauthentication
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,10 +18,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,17 +34,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.ui.theme.SocialMediaAppTheme
 import com.example.socialmediaapp.viewmodel.AuthenticateViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.socialmediaapp.ui.mainscreen.Home
-import com.example.socialmediaapp.viewmodel.ReadWriteNewUserViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun LoginScreen(navController: NavHostController,
-                viewModel: AuthenticateViewModel=viewModel(factory = AuthenticateViewModel.Factory))
+fun LoginScreen(navController: NavHostController, viewModel: AuthenticateViewModel= koinViewModel()
+)
  {
-
     val user = viewModel.user.collectAsState().value
 
     Box(

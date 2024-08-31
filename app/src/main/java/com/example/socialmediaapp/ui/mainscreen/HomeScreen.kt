@@ -5,14 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -38,14 +35,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.socialmediaapp.data.Post
 import com.example.socialmediaapp.viewmodel.PostViewModel
 import com.example.socialmediaapp.viewmodel.ReadWriteNewUserViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun Home( userId:String, readViewModel: ReadWriteNewUserViewModel=viewModel(factory = ReadWriteNewUserViewModel.Factory),
-          postViewModel: PostViewModel = viewModel(factory = PostViewModel.Factory))
+fun Home(userId:String, readViewModel: ReadWriteNewUserViewModel= koinViewModel(), postViewModel: PostViewModel = koinViewModel())
 {
 
     LaunchedEffect(userId) {
@@ -54,14 +50,14 @@ fun Home( userId:String, readViewModel: ReadWriteNewUserViewModel=viewModel(fact
     val userName = readViewModel.userName.value
     val postId by postViewModel.key.collectAsState()
 
-    Scaffold(topBar = { TopBar(userId, userName=userName)}) {
-            Post(modifier=Modifier.padding(it), userId=userId, postId = postId!!)
+    Scaffold(topBar = { TopBar(userId,postViewModel, userName=userName)}) {
+            Post(modifier=Modifier.padding(it),postViewModel, postId = postId!!, userId = userId)
     }
 
 }
 
 @Composable
-fun TopBar(userId:String, postViewModel: PostViewModel = viewModel(factory = PostViewModel.Factory), userName:String){
+fun TopBar(userId:String, postViewModel: PostViewModel, userName:String){
 
     var text by remember { mutableStateOf("") }
 

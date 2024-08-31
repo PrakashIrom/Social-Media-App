@@ -1,7 +1,5 @@
 package com.example.socialmediaapp.ui.mainscreen
 
-
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,13 +31,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.socialmediaapp.data.Post
 import com.example.socialmediaapp.ui.theme.SocialMediaAppTheme
 import com.example.socialmediaapp.viewmodel.PostViewModel
 
 @Composable
-fun Post(modifier: Modifier, viewModel: PostViewModel = viewModel(factory = PostViewModel.Factory), userId:String, postId:String) {
+fun Post(modifier: Modifier, viewModel: PostViewModel, postId:String, userId:String) {
 
     viewModel.readNewPost()
     val posts by viewModel.posts.collectAsState()
@@ -51,13 +47,13 @@ fun Post(modifier: Modifier, viewModel: PostViewModel = viewModel(factory = Post
             .padding(16.dp)
     ) {
         items(posts) { post ->
-            PostItem(post, userId, postId) ?: Log.e("PostScreen", "postId is null")
+            PostItem(post, viewModel, postId, userId)
         }
     }
 }
 
 @Composable
-fun PostItem(post: Post, userId: String, postId: String) {
+fun PostItem(post: Post,postViewModel: PostViewModel, postId: String, userId: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -96,7 +92,7 @@ fun PostItem(post: Post, userId: String, postId: String) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            LikeButton(userId = userId, post = post, postId = postId)
+            LikeButton(postId=postId, viewModel = postViewModel,userId = userId)
             CommentButton(post = post, userId = userId)
             ShareButton(post = post)
         }
@@ -104,7 +100,7 @@ fun PostItem(post: Post, userId: String, postId: String) {
 }
 
 @Composable
-fun LikeButton(post: Post, viewModel: PostViewModel = viewModel(factory = PostViewModel.Factory), userId: String, postId:String) {
+fun LikeButton(viewModel: PostViewModel, postId:String, userId: String) {
 
     val isLiked = remember { mutableStateOf(false) }
     LaunchedEffect(postId){

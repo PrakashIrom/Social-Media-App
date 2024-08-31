@@ -10,9 +10,9 @@ data class Post(
     val title: String = "",
     val content: String = "",
     val timestamp: Long = 0,
-    val likes: Map<String, Boolean> = emptyMap(), // Stores userIds who liked the post
-    val likeCount: Int = 0, // Stores the total number of likes
-    val comments: Map<String, Comment> = emptyMap() // Stores comments associated with the post
+    val likes: Map<String, Boolean> = emptyMap(),
+    val likeCount: Int = 0,
+    val comments: Map<String, Comment> = emptyMap()
 ) {
     @Exclude
     fun toMap(): Map<String, Any> {
@@ -23,7 +23,7 @@ data class Post(
             "content" to content,
             "timestamp" to timestamp,
             "likes" to likes,
-            "count" to likeCount,
+            "likeCount" to likeCount,
             "comments" to comments
         )
     }

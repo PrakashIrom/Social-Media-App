@@ -2,28 +2,23 @@ package com.example.socialmediaapp.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.socialmediaapp.FireBaseApplication
-import com.example.socialmediaapp.data.FirebaseDBImp
 import com.example.socialmediaapp.data.Post
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class PostViewModel(firebaseDB: FirebaseDBImp): ViewModel() {
+class PostViewModel(private val database: DatabaseReference): ViewModel() {
 
-    private val database = firebaseDB.db
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
     val posts: StateFlow<List<Post>> = _posts
     private val _key = MutableStateFlow<String?>("")
     val key: StateFlow<String?> = _key
-    private val _count = MutableStateFlow<Int?>(0)
-    val count: StateFlow<Int?> = _count
+    private val _count = MutableStateFlow<Long?>(0)
+    val count: StateFlow<Long?> = _count
 
     fun writeNewPost(userId: String, post: Post)
     {
@@ -36,17 +31,17 @@ class PostViewModel(firebaseDB: FirebaseDBImp): ViewModel() {
         }
         val postValues = post.toMap()
         val childUpdates = hashMapOf<String, Any>(
-            "/posts/$key" to postValues,
-            "/user-posts/$userId/$key" to postValues,
+            "/posts/${_key.value}" to postValues,
+            "/user-posts/$userId/${_key.value}" to postValues,
         )
 
         database.updateChildren(childUpdates)
             .addOnSuccessListener {
-                Log.e("Post Id is", "Key: ${_key.value}")
+                Log.d("Post Id is", "Key: ${_key.value}")
                 Log.d("PostViewModel", "Post successfully written.")
             }
             .addOnFailureListener { exception ->
-                Log.e("PostViewModel", "Failed to write post", exception)
+                Log.d("PostViewModel", "Failed to write post", exception)
             }
 
     }
@@ -74,16 +69,16 @@ class PostViewModel(firebaseDB: FirebaseDBImp): ViewModel() {
     fun toggleLike(postId: String, userId: String) {
         val postRef = database.child("posts").child(postId)
 
-        postRef.child("likes").child("userIds").child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
+        postRef.child("likes").child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     // User already liked this post, so unlike it
-                    postRef.child("likes").child("userIds").child(userId).removeValue()
-                    postRef.child("likes").child("count").setValue(ServerValue.increment(-1))
+                    postRef.child("likes").child(userId).removeValue()
+                    postRef.child("likeCount").setValue(ServerValue.increment(-1))
                 } else {
                     // User hasn't liked this post, so like it
-                    postRef.child("likes").child("userIds").child(userId).setValue(true)
-                    postRef.child("likes").child("count").setValue(ServerValue.increment(1))
+                    postRef.child("likes").child(userId).setValue(true)
+                    postRef.child("likeCount").setValue(ServerValue.increment(1))
                 }
             }
 
@@ -93,13 +88,15 @@ class PostViewModel(firebaseDB: FirebaseDBImp): ViewModel() {
         })
     }
 
+
+
     fun getLikeCount(postId: String) {
-        val postRef = database.child("posts").child(postId).child("likes").child("count")
+        val postRef = database.child("posts").child(postId).child("likeCount")
 
         postRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 // Retrieve the like count from the snapshot
-                _count.value = snapshot.getValue(Int::class.java) ?: 0
+                _count.value = snapshot.getValue(Long::class.java) ?: 0
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -128,12 +125,4 @@ class PostViewModel(firebaseDB: FirebaseDBImp): ViewModel() {
             }
     }
 
-    companion object{
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application =(this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as FireBaseApplication)
-                PostViewModel(application.firebaseDB)
-            }
-        }
-    }
 }
